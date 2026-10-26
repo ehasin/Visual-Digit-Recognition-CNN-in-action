@@ -99,6 +99,7 @@
     @media (max-width: 720px) {
       .wrap { padding: 0 16px; }
       main .wrap { max-width: none; }
+      .clip { aspect-ratio: 9 / 16; }
       main { padding: 20px 0 20px; }
       h1 { margin-bottom: 12px; }
       footer .wrap { padding-bottom: 24px; }
@@ -152,8 +153,12 @@
         <li><strong>Layer 2:</strong> sixteen more detectors look at what layer 1 found and spot bigger shapes: a loop, a corner, a crossing.</li>
         <li><strong>Top row:</strong> one box for each digit, 0 to 9. The fuller the box, the surer the network is. The green outline marks its answer.</li>
       </ul>
-      <video class="clip" src="assets/digit-evolution-1-4-9.mp4" autoplay muted loop playsinline preload="metadata"
-        aria-label="A 1 is drawn, then turned into a 4, then into a 9, and the network's answer changes each time"></video>
+      <!-- vertical cut on phones, wide cut on desktop; the browser fetches only the matching one -->
+      <video class="clip" autoplay muted loop playsinline preload="metadata"
+        aria-label="A 1 is drawn, then turned into a 4, then into a 9, and the network's answer changes each time">
+        <source src="assets/digit-evolution-1-4-9-vertical.mp4" media="(max-width: 720px)" type="video/mp4">
+        <source src="assets/digit-evolution-1-4-9.mp4" type="video/mp4">
+      </video>
       <h2>Why "convolutional"?</h2>
       <p>
         It's the name for networks that use these scanning detectors.
