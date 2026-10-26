@@ -1,0 +1,10 @@
+# only the page itself is deployed
+.env*
+.vercel
+docs
+tools
+serve.mjs
+README.md
+model/weights.json
+model/mnist-usage.json
+model/LICENSE-neural_canvas.txt

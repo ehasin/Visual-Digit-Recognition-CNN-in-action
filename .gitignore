@@ -4,3 +4,7 @@ model/mnist-usage.json
 model/LICENSE-neural_canvas.txt
 tools/convert-weights.mjs
 tools/mnist-usage.mjs
+
+# Vars
+/.env.ops.local
+.vercel

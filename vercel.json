@@ -1,0 +1,9 @@
+{
+  "trailingSlash": true,
+  "redirects": [
+    { "source": "/", "destination": "/projects/cnn-digit-recognition-in-action/", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/projects/cnn-digit-recognition-in-action/:path*", "destination": "/:path*" }
+  ]
+}
