@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Experience Digit Recognition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #111111;
+      --muted: #6b6b6b;
+      --line: #e4e4e4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+    }
+    h1 { font-size: 22px; font-weight: 600; margin: 0 0 16px; text-align: center; }
+    #net {
+      width: min(760px, calc(100vw - 32px));
+      aspect-ratio: 760 / 840;
+      touch-action: none;
+      user-select: none;
+      cursor: crosshair;
+    }
+    .controls { margin-top: 8px; display: flex; justify-content: center; }
+    button {
+      font: 600 14px Inter, system-ui, sans-serif;
+      padding: 8px 22px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--ink);
+      cursor: pointer;
+    }
+    button:hover { background: #f3f3f3; }
+    footer { margin-top: 28px; color: var(--muted); font-size: 12px; text-align: center; max-width: 560px; }
+    footer a { color: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Experience Digit Recognition from the Neural Network Perspective</h1>
+  <canvas id="net"></canvas>
+  <div class="controls">
+    <button id="clear">Clear</button>
+  </div>
+  <footer>
+    A small convolutional network, 99% accurate on MNIST, running live in your browser.
+    Weights: <a href="https://github.com/onnx/models/tree/main/validated/vision/classification/mnist">ONNX Model Zoo</a> (MIT).
+    Inspired by Brilliant.org.
+    <br>Built by Evgeni Hasin.
+  </footer>
+  <script src="preprocess.js"></script>
+  <script src="cnn.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
