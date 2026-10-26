@@ -73,6 +73,7 @@
     .explain p, .explain ul { margin: 0 0 12px; }
     .explain ul { padding-left: 22px; }
     .explain li { margin-bottom: 6px; }
+    .clip { display: block; width: 100%; aspect-ratio: 4 / 3; margin: 20px 0 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); }
     .totop { text-align: center; margin-top: 28px !important; }
     footer { position: sticky; bottom: 0; z-index: 10; background: var(--ink); color: var(--paper); }
     footer .wrap {
@@ -113,34 +114,56 @@
     <section class="wrap explain">
       <h2>What is a neural network?</h2>
       <p>
-        A neural network is a program that learns from examples instead of following rules someone wrote by hand.
-        It is built from layers of simple units. Each unit takes in numbers, weighs them and passes a result on.
-        Training adjusts those weights over thousands of examples until the answers come out right.
-        The network on this page was trained in advance; nothing is learned while you draw.
+        You've probably heard of AI: computers doing things that seem smart.
+        Most of today's AI is <em>machine learning</em>, where a computer learns from examples instead of following rules a person wrote.
+        Your spam filter learned what spam looks like from millions of emails.
+        Your phone learned to find "dog" in your photos from millions of labelled pictures.
       </p>
-      <h2>How does it read a digit?</h2>
       <p>
-        It learned from MNIST: 70,000 handwritten digits, each a 28&nbsp;×&nbsp;28 grid of grey pixels.
-        So your drawing is first centred and shrunk to that grid, shown as <em>Network sees</em>.
-        Those 784 pixels go in at the bottom of the demo, and ten numbers come out at the top, one for each digit from 0 to 9.
-        The biggest one is the answer; its size is the network's confidence.
+        A <em>neural network</em> is the most popular kind of machine learning.
+        It is loosely inspired by the brain: many simple parts, linked in layers, each passing a signal to the next.
+        On its own, each part does almost nothing. Together, they can recognise faces, voices and, here, handwriting.
       </p>
-      <h2>What makes it a convolutional network (CNN)?</h2>
+      <h2>How did it learn?</h2>
       <p>
-        A plain network treats every pixel separately. A CNN uses small filters that slide over the whole image,
-        looking for the same pattern everywhere.
+        Nobody told this network what a 3 looks like. It was shown tens of thousands of handwritten digits, each with the right answer.
+        At first it guessed at random. After every wrong guess it adjusted itself a tiny bit,
+        and after enough examples it got about 99 out of 100 right.
+        That learning is finished; the network on this page just uses what it learned.
       </p>
+      <h2>What you're watching</h2>
+      <p>Follow the demo from the bottom up.</p>
       <ul>
-        <li><strong>Layer 1</strong> has 8 filters, each a 5&nbsp;×&nbsp;5 patch: green wants ink, magenta wants empty paper.
-          Each filter makes a map of where its stroke shows up in your drawing: an edge, a line at some angle, a curve.</li>
-        <li><strong>Layer 2</strong> has 16 filters that work on layer 1's maps, so they find combinations of strokes: a loop, a corner, a crossing.</li>
-        <li>Between layers the maps are shrunk, keeping the strongest signal in each small area, so each layer sees a bigger part of the digit.</li>
-        <li>At the top, all 16 maps are combined into the ten outputs.</li>
+        <li><strong>You draw:</strong> your digit.</li>
+        <li><strong>Network sees:</strong> the same digit, shrunk to a small grid, the way the network learned to see digits.</li>
+        <li><strong>Layer 1:</strong> eight small detectors scan the grid. Each looks for one kind of stroke: a line, an edge, a curve.
+          The coloured patch shows what it looks for (green wants ink, magenta wants blank paper).
+          The darker the square above, the more of that stroke it found.</li>
+        <li><strong>Layer 2:</strong> sixteen more detectors look at what layer 1 found and spot bigger shapes: a loop, a corner, a crossing.</li>
+        <li><strong>Top row:</strong> one box for each digit, 0 to 9. The fuller the box, the surer the network is. The green outline marks its answer.</li>
       </ul>
+      <video class="clip" src="assets/digit-evolution-1-4-9.mp4" autoplay muted loop playsinline preload="metadata"
+        aria-label="A 1 is drawn, then turned into a 4, then into a 9, and the network's answer changes each time"></video>
+      <h2>Why "convolutional"?</h2>
       <p>
-        Click any filter or map in the demo to see it larger.
-        One limit: the network only knows digits. Draw a letter or a face, and it will still pick a digit.
+        It's the name for networks that use these scanning detectors.
+        The same detector slides across the whole picture, so a stroke counts wherever you draw it.
+        That's the same idea that lets a phone find a face anywhere in a photo.
       </p>
+      <h2>Try this</h2>
+      <ul>
+        <li>Click any square or patch to see it larger.</li>
+        <li>Draw a 4 slowly and watch the answer change as you add strokes.</li>
+        <li>Draw a letter or a cat. The network only knows digits, so it will still confidently name one,
+          which shows that it doesn't "understand" anything, it only matches patterns.</li>
+      </ul>
+      <h2>Want more?</h2>
+      <ul>
+        <li><a href="https://www.3blue1brown.com/lessons/neural-networks">But what is a neural network?</a> by 3Blue1Brown:
+          the best-known 20-minute introduction, using this same digit example.</li>
+        <li><a href="https://poloclub.github.io/cnn-explainer/">CNN Explainer</a> from Georgia Tech:
+          an interactive look inside a bigger convolutional network.</li>
+      </ul>
       <p class="totop"><button type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">Back to top</button></p>
     </section>
   </main>
