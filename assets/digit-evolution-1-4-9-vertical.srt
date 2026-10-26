@@ -1,0 +1,24 @@
+1
+00:00:00,000 --> 00:00:02,700
+Start with a 1.
+Watch the confidence above.
+
+2
+00:00:02,700 --> 00:00:06,200
+Add a stroke and a crossbar.
+Now the network sees a 4.
+
+3
+00:00:06,200 --> 00:00:08,800
+Slowly close the top.
+The internal signals change.
+
+4
+00:00:08,800 --> 00:00:11,400
+Watch 4 and 9 compete
+as the loop closes.
+
+5
+00:00:11,400 --> 00:00:14,000
+Now it sees a 9.
+Same trained weights. New prediction.

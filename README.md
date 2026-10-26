@@ -51,6 +51,8 @@ Then open http://localhost:5317. Any static file server works.
 | `preprocess.js` | Redraws the pen path MNIST-style: thin stroke, fit to 20 × 20, centred by mass |
 | `model/cnn.json` | Weights (54 KB) |
 | `tools/convert-cnn.mjs` | Converts the original ONNX model to `cnn.json` by reading the protobuf directly |
+| `tools/render-gtm-video*.cjs`, `tools/prepare-vertical.cjs` | Render the 1 → 4 → 9 videos frame by frame with the app's own renderer and model |
+| `assets/` | The videos, the link preview image and their source material |
 | `serve.mjs` | Tiny local static server |
 | `vercel.json` | Hosting: serves the page at `/projects/cnn-digit-recognition-in-action/` |
 
