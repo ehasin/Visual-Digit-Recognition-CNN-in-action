@@ -66,6 +66,14 @@
       color: var(--muted);
       font-size: 14.5px;
     }
+    /* explainer below the demo: a fixed reading width, not the height-fitted demo column */
+    main .wrap.explain { max-width: 704px; margin-top: 40px; }
+    h2 { font-size: 22px; line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; margin: 32px 0 8px; }
+    .explain h2:first-child { margin-top: 0; }
+    .explain p, .explain ul { margin: 0 0 12px; }
+    .explain ul { padding-left: 22px; }
+    .explain li { margin-bottom: 6px; }
+    .totop { text-align: center; margin-top: 28px !important; }
     footer { position: sticky; bottom: 0; z-index: 10; background: var(--ink); color: var(--paper); }
     footer .wrap {
       padding-top: 16px;
@@ -100,9 +108,41 @@
       <p class="credits">
         A small convolutional network, 99% accurate on MNIST, running live in your browser.
         Weights: <a href="https://github.com/onnx/models/tree/main/validated/vision/classification/mnist">ONNX Model Zoo</a> (MIT).
-        Inspired by Brilliant.org.
       </p>
     </div>
+    <section class="wrap explain">
+      <h2>What is a neural network?</h2>
+      <p>
+        A neural network is a program that learns from examples instead of following rules someone wrote by hand.
+        It is built from layers of simple units. Each unit takes in numbers, weighs them and passes a result on.
+        Training adjusts those weights over thousands of examples until the answers come out right.
+        The network on this page was trained in advance; nothing is learned while you draw.
+      </p>
+      <h2>How does it read a digit?</h2>
+      <p>
+        It learned from MNIST: 70,000 handwritten digits, each a 28&nbsp;×&nbsp;28 grid of grey pixels.
+        So your drawing is first centred and shrunk to that grid, shown as <em>Network sees</em>.
+        Those 784 pixels go in at the bottom of the demo, and ten numbers come out at the top, one for each digit from 0 to 9.
+        The biggest one is the answer; its size is the network's confidence.
+      </p>
+      <h2>What makes it a convolutional network (CNN)?</h2>
+      <p>
+        A plain network treats every pixel separately. A CNN uses small filters that slide over the whole image,
+        looking for the same pattern everywhere.
+      </p>
+      <ul>
+        <li><strong>Layer 1</strong> has 8 filters, each a 5&nbsp;×&nbsp;5 patch: green wants ink, magenta wants empty paper.
+          Each filter makes a map of where its stroke shows up in your drawing: an edge, a line at some angle, a curve.</li>
+        <li><strong>Layer 2</strong> has 16 filters that work on layer 1's maps, so they find combinations of strokes: a loop, a corner, a crossing.</li>
+        <li>Between layers the maps are shrunk, keeping the strongest signal in each small area, so each layer sees a bigger part of the digit.</li>
+        <li>At the top, all 16 maps are combined into the ten outputs.</li>
+      </ul>
+      <p>
+        Click any filter or map in the demo to see it larger.
+        One limit: the network only knows digits. Draw a letter or a face, and it will still pick a digit.
+      </p>
+      <p class="totop"><button type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">Back to top</button></p>
+    </section>
   </main>
   <footer>
     <div class="wrap">
