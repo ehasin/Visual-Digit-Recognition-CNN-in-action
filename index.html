@@ -28,10 +28,11 @@
     .wrap { width: 100%; max-width: 824px; margin: 0 auto; padding: 0 32px; }
     main { flex: 1; padding: 48px 0 40px; }
     h1 {
-      font-size: clamp(28px, 5.4vw, 40px);
+      font-size: clamp(26.6px, 5.13vw, 38px);
       line-height: 1.1;
       letter-spacing: -0.03em;
       font-weight: 600;
+      text-align: center;
       margin: 0 0 28px;
     }
     #net {
@@ -42,7 +43,7 @@
       user-select: none;
       cursor: crosshair;
     }
-    .controls { margin-top: 12px; }
+    .controls { margin-top: 12px; text-align: center; }
     button {
       font: 550 15.5px ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
       padding: 9px 24px;
@@ -60,7 +61,7 @@
       color: var(--muted);
       font-size: 14.5px;
     }
-    footer { background: var(--ink); color: var(--paper); }
+    footer { position: sticky; bottom: 0; z-index: 10; background: var(--ink); color: var(--paper); }
     footer .wrap {
       padding-top: 16px;
       padding-bottom: 16px;
