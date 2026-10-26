@@ -25,7 +25,7 @@ Draw a clean 8 and watch it light up. Then draw a sloppy 6, or a letter, and see
 - **Layer 2.** 16 filters run over the layer 1 maps, after shrinking them to half size. They pick up combinations of strokes: corners, loops and crossings.
 - **Outputs.** There are 10 boxes. How full a box is shows how sure the network is. The answer has a green outline and its confidence in %.
 - **Lines.** Green lines push the next layer up, magenta lines push it down.
-- **Zoom.** Hover over (or tap) any map to enlarge it.
+- **Zoom.** Click (or tap) any filter or map to open it enlarged in a bubble. Click it again, or anywhere on the bubble, to close it.
 
 ## Run it
 

@@ -26,27 +26,28 @@
     }
     a { color: inherit; }
     .wrap { width: 100%; max-width: 824px; margin: 0 auto; padding: 0 32px; }
-    main { flex: 1; padding: 48px 0 40px; }
+    main { flex: 1; padding: 32px 0 28px; }
     h1 {
       font-size: clamp(24.7px, 4.77vw, 35.3px);
       line-height: 1.1;
       letter-spacing: -0.03em;
       font-weight: 600;
       text-align: center;
-      margin: 0 0 28px;
+      margin: 0 0 16px;
     }
     #net {
       display: block;
       width: 100%;
-      aspect-ratio: 760 / 900;
+      aspect-ratio: 760 / 846;
       touch-action: none;
       user-select: none;
       cursor: crosshair;
     }
-    .controls { margin-top: 12px; text-align: center; }
+    /* centred under the drawing pad (x 50-344 of the 760-wide canvas), in the space below it */
+    .controls { position: relative; width: calc(294 / 760 * 100%); margin: calc(-40 / 760 * 100%) 0 0 calc(50 / 760 * 100%); text-align: center; }
     button {
-      font: 550 15.5px ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
-      padding: 9px 24px;
+      font: 550 14px ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+      padding: 5px 18px;
       border: 1.5px solid var(--ink);
       border-radius: 8px;
       background: var(--paper);
@@ -55,8 +56,8 @@
     }
     button:hover { background: var(--sunk); }
     .credits {
-      margin: 36px 0 0;
-      padding-top: 20px;
+      margin: 24px 0 0;
+      padding-top: 16px;
       border-top: 1px solid var(--rule);
       color: var(--muted);
       font-size: 14.5px;
@@ -77,8 +78,8 @@
     footer strong { font-weight: 650; }
     @media (max-width: 720px) {
       .wrap { padding: 0 16px; }
-      main { padding: 28px 0 32px; }
-      h1 { margin-bottom: 20px; }
+      main { padding: 20px 0 20px; }
+      h1 { margin-bottom: 12px; }
       footer .wrap { padding-bottom: 24px; }
     }
   </style>

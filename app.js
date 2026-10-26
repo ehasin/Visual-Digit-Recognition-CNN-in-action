@@ -3,18 +3,18 @@
 // ---------------------------------------------------------------------------
 // Layout (design coordinates; the canvas is scaled to fit the page)
 // ---------------------------------------------------------------------------
-const W = 760, H = 900;
+const W = 760, H = 846;
 const N = 28;                         // the network's input is N x N
 const SPAN = 660, LEFT = (W - SPAN) / 2;
-const PAD = { x: LEFT, y: 560, size: 294 };   // where you draw, no grid
-const INPUT = { x: W - LEFT - 294, y: 560, cell: 294 / N };  // what the network gets: one cell per input neuron
+const PAD = { x: LEFT, y: 504, size: 294 };   // where you draw, no grid
+const INPUT = { x: W - LEFT - 294, y: 504, cell: 294 / N };  // what the network gets: one cell per input neuron
 const PEN_WIDTH = 2.4;                // on-screen pen, in input cells
-const OUT = { y: 58, size: 50 };      // one box per digit
-const L2 = { y: 274, count: 16, cells: 14, cell: 2.5 };  // second-layer maps, 14x14 each
-const L1 = { y: 392, count: 8, cells: 28, cell: 2.25 };  // first-layer maps, 28x28 each
+const OUT = { y: 52, size: 50 };      // one box per digit
+const L2 = { y: 240, count: 16, cells: 14, cell: 2.5 };  // second-layer maps, 14x14 each
+const L1 = { y: 346, count: 8, cells: 28, cell: 2.25 };  // first-layer maps, 28x28 each
 const FILTER = { gap: 8, cell: 5 };   // 5x5 filter drawn under each first-layer map
-const PANEL = { x: 36, y: 170, w: W - 72, h: 340 };
-const ZOOM = { map: 140, pad: 16 };   // pop-up with the hovered map, enlarged
+const PANEL = { x: 36, y: 154, w: W - 72, h: 302 };
+const BUBBLE = { pad: 16, gap: 20, filter: 100, map: 120 };  // the opened map, enlarged
 
 const FONT = 'ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif';
 const MIN_TEXT = 11.5;                // smallest on-screen text size, in CSS pixels
@@ -49,6 +49,8 @@ let state = null;                     // last forward pass
 let drawing = false;
 let dirty = true;
 let hover = null;                     // { layer: 1 | 2, index } of the map under the pointer
+let opened = null;                    // { layer, index } of the map shown in the bubble
+let bubbleBox = null;                 // where the bubble was drawn, for clicks
 let textScale = 1;                    // grows on small screens so the text stays readable
 
 const font = (weight, size) => `${weight} ${size * textScale}px ${FONT}`;
@@ -202,11 +204,14 @@ function render() {
     drawFilter(i, x + (s1 - k) / 2, L1.y + s1 + FILTER.gap, FILTER.cell);
   }
   for (let i = 0; i < L2.count; i++) drawMap(maps2, i, rowX(L2.count, s2, i), L2.y, L2.cell, MAP_SCALE.l2);
-  if (hover) {
-    const layer = hover.layer === 1 ? L1 : L2, size = mapSize(layer);
-    ctx.strokeStyle = COLORS.ink;
-    ctx.lineWidth = 2;
-    roundRect(rowX(layer.count, size, hover.index) - 5, layer.y - 5, size + 10, size + 10, 6);
+  // outline the hovered map and, stronger, the opened one; a first-layer outline includes its filter
+  for (const [sel, color, width] of [[hover, COLORS.muted, 1.5], [opened, COLORS.ink, 2.5]]) {
+    if (!sel) continue;
+    const layer = sel.layer === 1 ? L1 : L2, size = mapSize(layer);
+    const h = size + (sel.layer === 1 ? FILTER.gap + 5 * FILTER.cell : 0);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    roundRect(rowX(layer.count, size, sel.index) - 5, layer.y - 5, size + 10, h + 10, 6);
     ctx.stroke();
   }
 
@@ -254,9 +259,11 @@ function render() {
   drawPixels(input, INPUT.x, INPUT.y, INPUT.cell, 1);
   ctx.font = font(400, 13);
   ctx.fillStyle = COLORS.muted;
-  ctx.fillText(`${N} × ${N} input neurons`, INPUT.x, INPUT.y + N * INPUT.cell + 8 + 13 * textScale);
+  ctx.textAlign = "center";
+  ctx.fillText(`${N} × ${N} input neurons`, INPUT.x + N * INPUT.cell / 2, INPUT.y + N * INPUT.cell + 8 + 13 * textScale);
+  ctx.textAlign = "left";
 
-  if (hover) drawZoom(hover);
+  bubbleBox = opened ? drawBubble(opened) : null;
 }
 
 function drawPad(empty) {
@@ -308,45 +315,95 @@ function drawArrow(x0, x1, y) {
   ctx.fill();
 }
 
-// pop-up under the hovered map: the map enlarged, with what its shades mean
-function drawZoom({ layer, index }) {
+// speech bubble over the "Network sees" area, its tail pointing at the opened map:
+// the filter and its map enlarged, with what the colours mean. Returns its box, for clicks.
+function drawBubble({ layer, index }) {
   const maps = layer === 1 ? state.maps1 : state.maps2;
   const spec = layer === 1 ? L1 : L2, size = mapSize(spec);
-  const legend = [["dark: its pattern is here", COLORS.label]];
-  if (layer === 1) {
-    legend.push(["filter green: wants ink", `rgb(${COLORS.positive})`]);
-    legend.push(["filter magenta: wants empty", `rgb(${COLORS.negative})`]);
-  }
-  const line = 17 * textScale, title = 26 * textScale, map = ZOOM.map * Math.min(1.4, textScale);
+  const s = Math.min(1.2, textScale), pad = BUBBLE.pad;
+  const fSize = layer === 1 ? BUBBLE.filter * s : 0, mSize = BUBBLE.map * s, gap = fSize ? BUBBLE.gap : 0;
+  const legend = layer === 1
+    ? [["green: wants ink", `rgb(${COLORS.positive})`], ["magenta: wants empty", `rgb(${COLORS.negative})`]]
+    : [];
+  const titleText = layer === 1 ? `Layer 1, filter ${index + 1}` : `Layer 2, map ${index + 1}`;
+  const title = 24 * textScale, caption = 20 * textScale, line = 17 * textScale, close = 16 * textScale;
   ctx.font = font(400, 13);
-  const textW = Math.max(...legend.map(([t]) => ctx.measureText(t).width));
-  const w = Math.max(map, textW) + 2 * ZOOM.pad;
-  const h = ZOOM.pad * 2 + title + map + legend.length * line + 4;
-  const x = Math.min(W - 8 - w, Math.max(8, rowX(spec.count, size, index) + size / 2 - w / 2));
-  const y = Math.min(L1.y + mapSize(L1) + FILTER.gap + 5 * FILTER.cell + 12, H - 8 - h);
+  const legendW = Math.max(0, ...legend.map(([t]) => ctx.measureText(t).width));
+  ctx.font = font(400, 12);
+  const colF = fSize && Math.max(fSize, ctx.measureText("the filter").width);  // image or caption, whichever is wider
+  const colM = Math.max(mSize, ctx.measureText("dark: found here").width);
+  ctx.font = font(600, 13);
+  const titleW = ctx.measureText(titleText).width + close + 12;
+  // at least as wide as the input grid, so it covers the "Network sees" area neatly
+  const w = Math.max(colF + gap + colM, legendW, titleW, N * INPUT.cell + 16 - 2 * pad) + 2 * pad;
+  const h = pad + title + Math.max(fSize, mSize) + caption + legend.length * line + pad;
+  const x = Math.min(W - 8 - w, Math.max(8, INPUT.x + N * INPUT.cell / 2 - w / 2));
+  const y = Math.min(L1.y + mapSize(L1) + FILTER.gap + 5 * FILTER.cell + 22, H - 8 - h);
+
+  // the tail starts at the opened map (under its filter on layer 1); longer tails get a wider base
+  const sx = rowX(spec.count, size, index) + size / 2;
+  const sy = layer === 1 ? L1.y + size + FILTER.gap + 5 * FILTER.cell + 7 : L2.y + size + 7;
+  const r = 14, half = Math.min(24, 10 + Math.abs(sx - (x + w / 2)) * 0.04);
+  const bx = Math.min(x + w - r - half - 2, Math.max(x + r + half + 2, sx));
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(bx - half, y);
+  ctx.lineTo(sx, sy);
+  ctx.lineTo(bx + half, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
   ctx.save();
   ctx.shadowColor = "rgba(22,21,15,0.16)";
   ctx.shadowBlur = 18;
   ctx.shadowOffsetY = 4;
   ctx.fillStyle = COLORS.paper;
-  roundRect(x, y, w, h, 14);
   ctx.fill();
   ctx.restore();
-  ctx.strokeStyle = COLORS.rule;
+  ctx.strokeStyle = COLORS.ink;
   ctx.lineWidth = 1.5;
+  ctx.lineJoin = "round";
   ctx.stroke();
 
-  const tx = x + ZOOM.pad, mx = x + (w - map) / 2, my = y + ZOOM.pad + title;
+  // title and close mark
+  const tx = x + pad, ty = y + pad + title * 0.6;
   ctx.font = font(600, 13);
   ctx.fillStyle = COLORS.label;
   ctx.textAlign = "left";
-  ctx.fillText(`Layer ${layer}, map ${index + 1}`, tx, my - 10);
-  drawMap(maps, index, mx, my, map / maps.size, layer === 1 ? MAP_SCALE.l1 : MAP_SCALE.l2);
+  ctx.fillText(titleText, tx, ty);
+  const cx = x + w - pad - close / 2, cy = ty - close * 0.35, arm = close * 0.32;
+  ctx.strokeStyle = COLORS.muted;
+  ctx.lineWidth = 1.5 * Math.min(1.5, textScale);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(cx - arm, cy - arm); ctx.lineTo(cx + arm, cy + arm);
+  ctx.moveTo(cx + arm, cy - arm); ctx.lineTo(cx - arm, cy + arm);
+  ctx.stroke();
+  ctx.lineCap = "butt";
+
+  // filter and map, side by side, with captions
+  const iy = y + pad + title, row = Math.max(fSize, mSize);
+  const ix = x + (w - (colF + gap + colM)) / 2, mx = ix + colF + gap;
+  ctx.font = font(400, 12);
+  ctx.fillStyle = COLORS.muted;
+  ctx.textAlign = "center";
+  if (layer === 1) {
+    drawFilter(index, ix + (colF - fSize) / 2, iy + (row - fSize) / 2, fSize / cnn.conv1.k);
+    ctx.fillStyle = COLORS.muted;
+    ctx.fillText("the filter", ix + colF / 2, iy + row + caption * 0.8);
+  }
+  drawMap(maps, index, mx + (colM - mSize) / 2, iy + (row - mSize) / 2, mSize / maps.size, layer === 1 ? MAP_SCALE.l1 : MAP_SCALE.l2);
+  ctx.fillStyle = COLORS.muted;
+  ctx.fillText("dark: found here", mx + colM / 2, iy + row + caption * 0.8);
+  ctx.textAlign = "left";
   ctx.font = font(400, 13);
   legend.forEach(([text, color], i) => {
     ctx.fillStyle = color;
-    ctx.fillText(text, tx, my + map + 4 + (i + 1) * line);
+    ctx.fillText(text, tx, iy + row + caption + (i + 0.8) * line);
   });
+  return { x, y, w, h };
 }
 
 function drawPixels(values, x0, y0, cell, gap) {
@@ -408,10 +465,26 @@ function strokeTo(p) {
   dirty = true;
 }
 
+function insideBubble(evt) {
+  if (!bubbleBox) return false;
+  const { x, y } = toDesign(evt), b = bubbleBox;
+  return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+}
+
+function setOpen(sel) {
+  opened = sel;
+  dirty = true;
+}
+
 canvas.addEventListener("pointerdown", (e) => {
+  if (insideBubble(e)) {              // a click anywhere on the bubble closes it
+    setOpen(null);
+    return;
+  }
   const p = toGrid(e);
   if (!insidePad(p)) {
-    setHover(mapAt(e));               // a tap enlarges the map on touch screens
+    const sel = mapAt(e);             // a click opens a map; clicking it again closes it
+    if (sel) setOpen(sel.layer === opened?.layer && sel.index === opened?.index ? null : sel);
     return;
   }
   drawing = true;
@@ -421,7 +494,9 @@ canvas.addEventListener("pointerdown", (e) => {
 });
 canvas.addEventListener("pointermove", (e) => {
   if (!drawing) {
-    setHover(mapAt(e));
+    const sel = insideBubble(e) ? null : mapAt(e);
+    setHover(sel);
+    canvas.style.cursor = sel || insideBubble(e) ? "pointer" : insidePad(toGrid(e)) ? "crosshair" : "default";
     return;
   }
   // coalesced events give smooth strokes on fast pen/mouse movement
@@ -440,7 +515,8 @@ function clearDrawing() {
 
 document.getElementById("clear").addEventListener("click", clearDrawing);
 document.addEventListener("keydown", (e) => {
-  if (e.key === "c" || e.key === "C" || e.key === "Escape") clearDrawing();
+  if (e.key === "Escape" && opened) setOpen(null);
+  else if (e.key === "c" || e.key === "C" || e.key === "Escape") clearDrawing();
 });
 
 // ---------------------------------------------------------------------------
