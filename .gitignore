@@ -1,10 +1,4 @@
-# files from an earlier, simpler network; no longer used by the page
-model/weights.json
-model/mnist-usage.json
-model/LICENSE-neural_canvas.txt
-tools/convert-weights.mjs
-tools/mnist-usage.mjs
-
-# Vars
+# local only: the archived first network, secrets, Vercel CLI state
+/archive/
 /.env.ops.local
 .vercel
