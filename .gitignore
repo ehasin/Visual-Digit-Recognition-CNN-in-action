@@ -1,4 +1,9 @@
-# local only: the archived first network, secrets, Vercel CLI state
+# local only: project docs, the archived first network, secrets, Vercel CLI state
+/CLAUDE.md
+/PLAN.md
+/STATUS.md
+/DEPLOYMENT.md
+/LINKEDIN_POST.md
 /archive/
 /.env.ops.local
 .vercel
