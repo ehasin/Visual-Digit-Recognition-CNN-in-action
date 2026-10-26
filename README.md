@@ -2,7 +2,21 @@
 
 Draw a digit and watch a convolutional neural network read it, layer by layer, live in your browser.
 
+**▶ Try it: [hasin.eu/projects/cnn-digit-recognition-in-action](https://hasin.eu/projects/cnn-digit-recognition-in-action/)**. Works on desktop and phone.
+
 ![Drawing an 8: the network's input, both hidden layers and the answer, 97%](docs/screenshot.png)
+
+## Why I built it
+
+Machine learning is usually explained with formulas or shown as a black box: a picture goes in, an answer comes out. I wanted a way to *see* how a neural network works and get an intuitive feel for it, without any math.
+
+So this demo hides nothing. Every step the network takes is on screen and updates as you draw:
+
+- what the network actually receives: not your drawing, but 784 numbers
+- how its first layer looks for simple strokes, and its second layer for combinations of them
+- which signals push towards which answer, and how sure it ends up
+
+Draw a clean 8 and watch it light up. Then draw a sloppy 6, or a letter, and see where it goes wrong. Playing with it shows what a convolutional neural network (CNN) learns, and where its limits are, faster than reading about it.
 
 ## What you see
 

@@ -3,29 +3,34 @@
 // ---------------------------------------------------------------------------
 // Layout (design coordinates; the canvas is scaled to fit the page)
 // ---------------------------------------------------------------------------
-const W = 760, H = 840;
+const W = 760, H = 900;
 const N = 28;                         // the network's input is N x N
 const SPAN = 660, LEFT = (W - SPAN) / 2;
-const PAD = { x: LEFT, y: 520, size: 294 };   // where you draw, no grid
-const INPUT = { x: W - LEFT - 294, y: 520, cell: 294 / N };  // what the network gets: one cell per input neuron
+const PAD = { x: LEFT, y: 560, size: 294 };   // where you draw, no grid
+const INPUT = { x: W - LEFT - 294, y: 560, cell: 294 / N };  // what the network gets: one cell per input neuron
 const PEN_WIDTH = 2.4;                // on-screen pen, in input cells
 const OUT = { y: 58, size: 50 };      // one box per digit
-const L2 = { y: 242, count: 16, cells: 14, cell: 2.5 };  // second-layer maps, 14x14 each
-const L1 = { y: 360, count: 8, cells: 28, cell: 2.25 };  // first-layer maps, 28x28 each
+const L2 = { y: 274, count: 16, cells: 14, cell: 2.5 };  // second-layer maps, 14x14 each
+const L1 = { y: 392, count: 8, cells: 28, cell: 2.25 };  // first-layer maps, 28x28 each
 const FILTER = { gap: 8, cell: 5 };   // 5x5 filter drawn under each first-layer map
-const PANEL = { x: 36, y: 138, w: W - 72, h: 340 };
-const ZOOM = { w: 200, map: 140, pad: 16 };   // pop-up with the hovered map, enlarged
+const PANEL = { x: 36, y: 170, w: W - 72, h: 340 };
+const ZOOM = { map: 140, pad: 16 };   // pop-up with the hovered map, enlarged
+
+const FONT = 'ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif';
+const MIN_TEXT = 11.5;                // smallest on-screen text size, in CSS pixels
 
 const COLORS = {
-  ink: "#111111",
-  boxLine: "#111111",
-  panel: "#e4e4e4",
-  cellEmpty: [236, 236, 236],
-  cellInk: [17, 17, 17],
+  paper: "#fbfaf6",
+  sunk: "#f4f2ea",                    // panel behind the hidden layers
+  rule: "#e2ded2",
+  ink: "#16150f",
+  boxLine: "#16150f",
+  cellEmpty: [232, 229, 219],
+  cellInk: [22, 21, 15],
   positive: [52, 199, 140],           // green: pushes the next layer up
   negative: [220, 64, 200],           // magenta: pushes the next layer down
-  label: "#111111",
-  muted: "#9a9a9a",
+  label: "#16150f",
+  muted: "#6f6b61",
   answer: "#1fa463",                  // outline around the selected answer
 };
 
@@ -44,6 +49,9 @@ let state = null;                     // last forward pass
 let drawing = false;
 let dirty = true;
 let hover = null;                     // { layer: 1 | 2, index } of the map under the pointer
+let textScale = 1;                    // grows on small screens so the text stays readable
+
+const font = (weight, size) => `${weight} ${size * textScale}px ${FONT}`;
 
 // ---------------------------------------------------------------------------
 // Network
@@ -147,9 +155,21 @@ function drawFilter(index, x0, y0, cell) {
       ctx.fillRect(x0 + c * cell, y0 + r * cell, cell, cell);
     }
   }
-  ctx.strokeStyle = COLORS.panel;
+  ctx.strokeStyle = COLORS.rule;
   ctx.lineWidth = 1;
   ctx.strokeRect(x0 - 0.5, y0 - 0.5, k * cell + 1, k * cell + 1);
+}
+
+// text on a translucent backing, so it stays readable over the lines
+function drawLabel(text, x, y, backing) {
+  const size = parseFloat(/(\d+(\.\d+)?)px/.exec(ctx.font)[1]);
+  const w = ctx.measureText(text).width;
+  const left = ctx.textAlign === "center" ? x - w / 2 : x;
+  ctx.save();
+  ctx.fillStyle = backing;
+  ctx.fillRect(left - 4, y - size * 0.95, w + 8, size * 1.25);
+  ctx.restore();
+  ctx.fillText(text, x, y);
 }
 
 function render() {
@@ -157,9 +177,11 @@ function render() {
   ctx.clearRect(0, 0, W, H);
 
   // panel behind the hidden layers
-  ctx.strokeStyle = COLORS.panel;
+  ctx.fillStyle = COLORS.sunk;
+  ctx.strokeStyle = COLORS.rule;
   ctx.lineWidth = 1.5;
-  roundRect(PANEL.x, PANEL.y, PANEL.w, PANEL.h, 10);
+  roundRect(PANEL.x, PANEL.y, PANEL.w, PANEL.h, 14);
+  ctx.fill();
   ctx.stroke();
 
   const s1 = mapSize(L1), s2 = mapSize(L2);
@@ -189,18 +211,16 @@ function render() {
   }
 
   // layer captions, in the panel's left margin
-  ctx.font = "600 11px Inter, system-ui, sans-serif";
+  ctx.font = font(600, 13);
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = COLORS.label;
   for (const [text, y] of [["Layer 2: 16 filters of filters", L2.y - 12], ["Layer 1: 8 stroke filters", L1.y - 12]]) {
-    ctx.fillStyle = "rgba(255,255,255,0.9)";  // keeps the caption readable over the lines
-    ctx.fillRect(PANEL.x + 8, y - 11, ctx.measureText(text).width + 8, 15);
-    ctx.fillStyle = COLORS.label;
-    ctx.fillText(text, PANEL.x + 12, y);
+    drawLabel(text, PANEL.x + 14, y, "rgba(244,242,234,0.92)");
   }
 
   // outputs + labels
-  ctx.font = "600 34px Caveat, 'Comic Sans MS', cursive";
+  ctx.font = `600 30px ${FONT}`;
   ctx.textAlign = "center";
   for (let i = 0; i < 10; i++) {
     const x = rowX(10, OUT.size, i), cx = x + OUT.size / 2;
@@ -217,38 +237,45 @@ function render() {
 
   // how sure the network is, under its answer
   if (answer >= 0) {
-    const text = `${Math.round(probs[answer] * 100)}%`, cx = rowX(10, OUT.size, answer) + OUT.size / 2;
-    ctx.font = "600 13px Inter, system-ui, sans-serif";
-    const w = ctx.measureText(text).width + 8;
-    ctx.fillStyle = "rgba(255,255,255,0.9)";  // readable over the lines
-    ctx.fillRect(cx - w / 2, OUT.y + OUT.size + 9, w, 18);
+    const cx = rowX(10, OUT.size, answer) + OUT.size / 2;
+    ctx.font = font(650, 15);
     ctx.fillStyle = COLORS.answer;
-    ctx.fillText(text, cx, OUT.y + OUT.size + 23);
+    drawLabel(`${Math.round(probs[answer] * 100)}%`, cx, OUT.y + OUT.size + 8 + 15 * textScale, "rgba(251,250,246,0.92)");
   }
 
   // your drawing, and the same-size 28x28 input it becomes
-  ctx.font = "600 12px Inter, system-ui, sans-serif";
+  ctx.font = font(600, 14);
   ctx.fillStyle = COLORS.label;
   ctx.textAlign = "left";
-  ctx.fillText("You draw", PAD.x, PAD.y - 10);
-  ctx.fillText(`Network sees: ${N} × ${N} input neurons`, INPUT.x, INPUT.y - 10);
-  drawPad();
+  ctx.fillText("You draw", PAD.x, PAD.y - 12);
+  ctx.fillText("Network sees", INPUT.x, INPUT.y - 12);
+  drawPad(empty);
   drawArrow(PAD.x + PAD.size + 14, INPUT.x - 14, PAD.y + PAD.size / 2);
   drawPixels(input, INPUT.x, INPUT.y, INPUT.cell, 1);
+  ctx.font = font(400, 13);
+  ctx.fillStyle = COLORS.muted;
+  ctx.fillText(`${N} × ${N} input neurons`, INPUT.x, INPUT.y + N * INPUT.cell + 8 + 13 * textScale);
 
   if (hover) drawZoom(hover);
 }
 
-function drawPad() {
+function drawPad(empty) {
   ctx.fillStyle = "#ffffff";
-  roundRect(PAD.x, PAD.y, PAD.size, PAD.size, 8);
+  roundRect(PAD.x, PAD.y, PAD.size, PAD.size, 14);
   ctx.fill();
-  ctx.strokeStyle = COLORS.panel;
+  ctx.strokeStyle = COLORS.rule;
   ctx.lineWidth = 1.5;
   ctx.stroke();
+  if (empty) {
+    ctx.font = font(400, 14);
+    ctx.fillStyle = COLORS.muted;
+    ctx.textAlign = "center";
+    ctx.fillText("Draw a digit here", PAD.x + PAD.size / 2, PAD.y + PAD.size / 2);
+    ctx.textAlign = "left";
+  }
   const k = PAD.size / N;
   ctx.save();
-  roundRect(PAD.x, PAD.y, PAD.size, PAD.size, 8);
+  roundRect(PAD.x, PAD.y, PAD.size, PAD.size, 14);
   ctx.clip();
   ctx.strokeStyle = ctx.fillStyle = COLORS.ink;
   ctx.lineWidth = PEN_WIDTH * k;
@@ -285,37 +312,41 @@ function drawArrow(x0, x1, y) {
 function drawZoom({ layer, index }) {
   const maps = layer === 1 ? state.maps1 : state.maps2;
   const spec = layer === 1 ? L1 : L2, size = mapSize(spec);
-  const lines = layer === 1 ? 3 : 1;
-  const h = ZOOM.pad * 2 + 22 + ZOOM.map + lines * 16;
-  const x = Math.min(W - 8 - ZOOM.w, Math.max(8, rowX(spec.count, size, index) + size / 2 - ZOOM.w / 2));
-  const y = L1.y + mapSize(L1) + FILTER.gap + 5 * FILTER.cell + 12;
+  const legend = [["dark: its pattern is here", COLORS.label]];
+  if (layer === 1) {
+    legend.push(["filter green: wants ink", `rgb(${COLORS.positive})`]);
+    legend.push(["filter magenta: wants empty", `rgb(${COLORS.negative})`]);
+  }
+  const line = 17 * textScale, title = 26 * textScale, map = ZOOM.map * Math.min(1.4, textScale);
+  ctx.font = font(400, 13);
+  const textW = Math.max(...legend.map(([t]) => ctx.measureText(t).width));
+  const w = Math.max(map, textW) + 2 * ZOOM.pad;
+  const h = ZOOM.pad * 2 + title + map + legend.length * line + 4;
+  const x = Math.min(W - 8 - w, Math.max(8, rowX(spec.count, size, index) + size / 2 - w / 2));
+  const y = Math.min(L1.y + mapSize(L1) + FILTER.gap + 5 * FILTER.cell + 12, H - 8 - h);
   ctx.save();
-  ctx.shadowColor = "rgba(0,0,0,0.18)";
-  ctx.shadowBlur = 16;
+  ctx.shadowColor = "rgba(22,21,15,0.16)";
+  ctx.shadowBlur = 18;
   ctx.shadowOffsetY = 4;
-  ctx.fillStyle = "#ffffff";
-  roundRect(x, y, ZOOM.w, h, 10);
+  ctx.fillStyle = COLORS.paper;
+  roundRect(x, y, w, h, 14);
   ctx.fill();
   ctx.restore();
-  ctx.strokeStyle = COLORS.ink;
+  ctx.strokeStyle = COLORS.rule;
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  const tx = x + ZOOM.pad, mx = x + (ZOOM.w - ZOOM.map) / 2, my = y + ZOOM.pad + 22;
-  ctx.font = "600 12px Inter, system-ui, sans-serif";
+  const tx = x + ZOOM.pad, mx = x + (w - map) / 2, my = y + ZOOM.pad + title;
+  ctx.font = font(600, 13);
   ctx.fillStyle = COLORS.label;
   ctx.textAlign = "left";
   ctx.fillText(`Layer ${layer}, map ${index + 1}`, tx, my - 10);
-  drawMap(maps, index, mx, my, ZOOM.map / maps.size, layer === 1 ? MAP_SCALE.l1 : MAP_SCALE.l2);
-  ctx.font = "400 12px Inter, system-ui, sans-serif";
-  ctx.fillStyle = COLORS.label;
-  ctx.fillText("dark: its pattern is here", tx, my + ZOOM.map + 18);
-  if (layer === 1) {
-    ctx.fillStyle = `rgb(${COLORS.positive})`;
-    ctx.fillText("filter green: wants ink", tx, my + ZOOM.map + 34);
-    ctx.fillStyle = `rgb(${COLORS.negative})`;
-    ctx.fillText("filter magenta: wants empty", tx, my + ZOOM.map + 50);
-  }
+  drawMap(maps, index, mx, my, map / maps.size, layer === 1 ? MAP_SCALE.l1 : MAP_SCALE.l2);
+  ctx.font = font(400, 13);
+  legend.forEach(([text, color], i) => {
+    ctx.fillStyle = color;
+    ctx.fillText(text, tx, my + map + 4 + (i + 1) * line);
+  });
 }
 
 function drawPixels(values, x0, y0, cell, gap) {
@@ -421,6 +452,8 @@ function resize() {
   canvas.width = Math.round(rect.width * dpr);
   canvas.height = Math.round(rect.height * dpr);
   ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+  // the canvas shrinks on phones; enlarge the text so it doesn't shrink below MIN_TEXT
+  textScale = Math.min(2.3, Math.max(1, MIN_TEXT / (12 * rect.width / W)));
   dirty = true;
 }
 
@@ -442,8 +475,6 @@ async function start() {
   cnn = model;
   resize();
   window.addEventListener("resize", resize);
-  // redraw once the handwritten label font has arrived
-  document.fonts?.load("600 34px Caveat").then(() => { dirty = true; }, () => {});
   loop();
 }
 
