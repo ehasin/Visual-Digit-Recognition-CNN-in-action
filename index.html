@@ -27,8 +27,10 @@
     a { color: inherit; }
     .wrap { width: 100%; max-width: 824px; margin: 0 auto; padding: 0 32px; }
     main { flex: 1; padding: 32px 0 28px; }
+    /* desktop: narrow the column so title, canvas, credits and footer fit the window height (310px = everything but the canvas) */
+    main .wrap { container-type: inline-size; max-width: clamp(424px, calc((100vh - 310px) * 760 / 846 + 64px), 824px); }
     h1 {
-      font-size: clamp(24.7px, 4.77vw, 35.3px);
+      font-size: clamp(23.5px, 4.41cqi, 33.5px);
       line-height: 1.1;
       letter-spacing: -0.03em;
       font-weight: 600;
@@ -80,6 +82,7 @@
     footer strong { font-weight: 650; }
     @media (max-width: 720px) {
       .wrap { padding: 0 16px; }
+      main .wrap { max-width: none; }
       main { padding: 20px 0 20px; }
       h1 { margin-bottom: 12px; }
       footer .wrap { padding-bottom: 24px; }
