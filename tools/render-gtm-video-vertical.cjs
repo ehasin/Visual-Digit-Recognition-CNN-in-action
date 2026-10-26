@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const { spawn } = require('child_process');
-const { createCanvas } = require('C:/Users/Evgeni/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@napi-rs/canvas');
+const { createCanvas } = require(process.env.NAPI_CANVAS || '@napi-rs/canvas');  // NAPI_CANVAS: optional path to a local copy
 const root = path.resolve(__dirname, '..');
 const out = path.join(root, 'assets');
 fs.mkdirSync(out, { recursive: true });
