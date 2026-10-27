@@ -1,10 +1,8 @@
-> **This repo has moved to [ehasin/neural-networks-in-action](https://github.com/ehasin/neural-networks-in-action).** This copy is archived and no longer updated.
-
 # Visual Digit Recognition – CNN in action
 
 Draw a digit and watch a convolutional neural network read it, layer by layer, live in your browser.
 
-**▶ Try it: [hasin.eu/projects/cnn-digit-recognition-in-action](https://hasin.eu/projects/cnn-digit-recognition-in-action/)**. Works on desktop and phone.
+**▶ Live demo: [hasin.eu/projects/cnn-digit-recognition-in-action](https://hasin.eu/projects/cnn-digit-recognition-in-action/)**. Works on desktop and phone.
 
 <p>
   <img src="docs/screenshot.png" alt="Drawing an 8: the network's input, both hidden layers and the answer, 97%" width="64%">
@@ -31,32 +29,35 @@ Draw a clean 8 and watch it light up. Then draw a sloppy 6, or a letter, and see
 - **Outputs.** 10 boxes; how full each is shows how sure the network is. The answer gets a green outline and its confidence in %.
 - **Lines.** Green lines push the next layer up, magenta lines push it down.
 - **Zoom.** Click or tap any filter or map to open it enlarged in a bubble. Click it again, or the bubble, to close it.
-- **Clear.** The button, or the C key.
+- **Clear.** The button, or the C or Esc key.
 
-## Run it
+Below the demo, a short explainer for newcomers to machine learning, with a video of a 1 turning into a 4 and then a 9.
 
-There is no build step and no dependencies, only static files.
+## Run it locally
+
+There is no build step and no dependencies, only static files. You need [Node.js](https://nodejs.org/) for the bundled server.
 
 ```
+git clone https://github.com/ehasin/Visual-Digit-Recognition-CNN-in-action.git
+cd Visual-Digit-Recognition-CNN-in-action
 node serve.mjs
 ```
 
-Then open http://localhost:5317. Any static file server works.
+Then open http://localhost:5317 (if that port is taken, the server picks the next free one and prints it). Any other static file server works too, for example `python -m http.server`.
 
 ## How it's built
 
 | File | Role |
 | --- | --- |
-| `index.html` | Page and styles |
+| `index.html` | Page, styles and the explainer |
 | `app.js` | Drawing pad, canvas rendering, hover |
 | `cnn.js` | The network's forward pass in plain JavaScript (about 5 ms) |
 | `preprocess.js` | Redraws the pen path MNIST-style: thin stroke, fit to 20 × 20, centred by mass |
 | `model/cnn.json` | Weights (54 KB) |
 | `tools/convert-cnn.mjs` | Converts the original ONNX model to `cnn.json` by reading the protobuf directly |
-| `tools/render-gtm-video*.cjs`, `tools/prepare-vertical.cjs` | Render the 1 → 4 → 9 videos frame by frame with the app's own renderer and model |
-| `assets/` | The videos, the link preview image and their source material |
+| `assets/` | The explainer video: a wide cut for desktop, a vertical cut for phones |
+| `docs/` | Screenshots for this README |
 | `serve.mjs` | Tiny local static server |
-| `vercel.json` | Hosting: serves the page at `/projects/cnn-digit-recognition-in-action/` |
 
 Network: conv 5×5 (8 filters) → ReLU → max-pool 2 → conv 5×5 (16 filters) → ReLU → max-pool 3 → dense 256 → 10 → softmax. It is 98.9% accurate on the MNIST test set.
 
@@ -65,5 +66,9 @@ Network: conv 5×5 (8 filters) → ReLU → max-pool 2 → conv 5×5 (16 filters
 - Model: [mnist-8 from the ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/classification/mnist), MIT license, trained by Microsoft with CNTK.
 - Training data: the [MNIST database](https://yann.lecun.com/exdb/mnist/) by Yann LeCun, Corinna Cortes and Christopher Burges.
 - Inspired by Brilliant.org's *Introduction to Neural Networks*.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
 
 Built by Evgeni Hasin.

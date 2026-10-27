@@ -17,7 +17,7 @@ const TYPES = {
 
 const server = createServer(async (req, res) => {
   const path = decodeURIComponent(new URL(req.url, "http://x").pathname);
-  const file = normalize(join(ROOT, path === "/" ? "index.html" : path));
+  const file = normalize(join(ROOT, path.endsWith("/") ? path + "index.html" : path));
   if (!file.startsWith(normalize(ROOT))) return res.writeHead(403).end();
   try {
     const body = await readFile(file);
