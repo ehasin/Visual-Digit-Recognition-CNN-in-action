@@ -1,3 +1,5 @@
+> **This repo has moved to [ehasin/neural-networks-in-action](https://github.com/ehasin/neural-networks-in-action).** This copy is archived and no longer updated.
+
 # Visual Digit Recognition – CNN in action
 
 Draw a digit and watch a convolutional neural network read it, layer by layer, live in your browser.
