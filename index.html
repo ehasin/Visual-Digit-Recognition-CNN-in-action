@@ -84,15 +84,17 @@
     .clip { display: block; width: 100%; aspect-ratio: 4 / 3; margin: 20px 0 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); }
     .share-end { margin-top: 32px; }   /* the share bar (share.js), above Back to top */
     .totop { text-align: center; margin-top: 28px !important; }
-    footer { position: sticky; bottom: 0; z-index: 10; background: var(--ink); color: var(--paper); }
+    /* the footer: the car demo's size, which follows its root size (--r: desktop.css's html font-size, 14px on phones) */
+    footer { --r: max(13px, min(0.885vw, 1.574vh)); position: sticky; bottom: 0; z-index: 10; background: var(--ink); color: var(--paper); }
     footer .wrap {
-      padding-top: 16px;
-      padding-bottom: 16px;
+      padding-top: calc(0.94 * var(--r));
+      padding-bottom: calc(0.94 * var(--r));
       display: flex;
       justify-content: space-between;
-      gap: 10px 24px;
+      gap: 10px 12px;
       flex-wrap: wrap;
-      font-size: 14.5px;
+      font-size: calc(0.853 * var(--r));
+      line-height: 1.6;
     }
     footer a { color: var(--paper); text-decoration: none; }
     footer a:hover { opacity: .75; }
@@ -107,7 +109,7 @@
       .clip { aspect-ratio: 9 / 16; }
       main { padding: 20px 0 20px; }
       h1 { margin-bottom: 12px; }
-      footer .wrap { padding-bottom: 24px; column-gap: 12px; }
+      footer { --r: 14px; }
     }
   </style>
 </head>
