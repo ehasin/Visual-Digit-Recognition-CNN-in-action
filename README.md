@@ -33,6 +33,8 @@ Draw a clean 8 and watch it light up. Then draw a sloppy 6, or a letter, and see
 
 Below the demo, a short explainer for newcomers to machine learning, with a video of a 1 turning into a 4 and then a 9.
 
+The self-driving car demo shows the other side of the story: you train a small network to drive, three different ways. [Self-Driving Car – NN in action](https://github.com/ehasin/Self-Driving-Car-NN-in-action).
+
 ## Run it locally
 
 There is no build step and no dependencies, only static files. You need [Node.js](https://nodejs.org/) for the bundled server.

@@ -110,7 +110,7 @@
 <body>
   <main>
     <div class="wrap">
-      <h1>Experience Digit Recognition from the Neural Network Perspective</h1>
+      <h1>Experience digit recognition from the neural network perspective</h1>
       <canvas id="net"></canvas>
       <div class="controls">
         <button id="clear">Clear</button>
@@ -124,55 +124,40 @@
       </button>
     </div>
     <section class="wrap explain">
-      <h2>What is a neural network?</h2>
-      <p>
-        You've probably heard of AI: computers doing things that seem smart.
-        Most of today's AI is <em>machine learning</em>, where a computer learns from examples instead of following rules a person wrote.
-        Your spam filter learned what spam looks like from millions of emails.
-        Your phone learned to find "dog" in your photos from millions of labelled pictures.
-      </p>
-      <p>
-        A <em>neural network</em> is the most popular kind of machine learning.
-        It is loosely inspired by the brain: many simple parts, linked in layers, each passing a signal to the next.
-        On its own, each part does almost nothing. Together, they can recognise faces, voices and, here, handwriting.
-      </p>
-      <h2>How did it learn?</h2>
-      <p>
-        Nobody told this network what a 3 looks like. It was shown tens of thousands of handwritten digits, each with the right answer.
-        At first it guessed at random. After every wrong guess it adjusted itself a tiny bit,
-        and after enough examples it got about 99 out of 100 right.
-        That learning is finished; the network on this page just uses what it learned.
-      </p>
-      <h2>What you're watching</h2>
-      <p>Follow the demo from the bottom up.</p>
+      <p>I built these two explainers for my kids and anyone new to neural networks, to show how machines learn and make decisions. Here, you can draw a digit and see how a trained network reaches an answer, including when it gets things wrong.</p>
+      <h2>How does a drawing become a prediction?</h2>
+      <p>Draw a 1, then add strokes to turn it into a 4. Watch the network's answer change.</p>
+      <p>You recognise the digit almost immediately. This network reaches its answer through layers of simple calculations: starting with pixels, finding patterns, and combining them into a prediction.</p>
+      <h2>Follow your drawing through the network</h2>
+      <p>Read the diagram from the bottom up.</p>
       <ul>
-        <li><strong>You draw:</strong> your digit.</li>
-        <li><strong>Network sees:</strong> the same digit, shrunk to a small grid, the way the network learned to see digits.</li>
-        <li><strong>Layer 1:</strong> eight small detectors scan the grid. Each looks for one kind of stroke: a line, an edge, a curve.
-          The coloured patch shows what it looks for (green wants ink, magenta wants blank paper).
-          The darker the square above, the more of that stroke it found.</li>
-        <li><strong>Layer 2:</strong> sixteen more detectors look at what layer 1 found and spot bigger shapes: a loop, a corner, a crossing.</li>
-        <li><strong>Top row:</strong> one box for each digit, 0 to 9. The fuller the box, the surer the network is. The green outline marks its answer.</li>
+        <li><strong>You draw:</strong> your original handwriting.</li>
+        <li><strong>Network sees:</strong> your drawing resized and centred in a 28 × 28 grid. Each pixel becomes a number describing how much ink is there.</li>
+        <li><strong>Layer 1:</strong> eight learned filters scan the grid for small visual patterns. The coloured patches show the filters; the squares above show where they respond. Darker areas mean a stronger response.</li>
+        <li><strong>Layer 2:</strong> sixteen filters combine patterns from the first layer into more complex ones.</li>
+        <li><strong>Top row:</strong> the network assigns a percentage to each digit. The green outline marks its prediction.</li>
       </ul>
+      <p>Click a filter or a square to inspect it. In the coloured filters, ink in green areas increases the response; ink in magenta areas reduces it.</p>
       <!-- vertical cut on phones, wide cut on desktop; the browser fetches only the matching one -->
       <video class="clip" autoplay muted loop playsinline preload="metadata"
         aria-label="A 1 is drawn, then turned into a 4, then into a 9, and the network's answer changes each time">
         <source src="assets/digit-evolution-1-4-9-vertical.mp4" media="(max-width: 720px)" type="video/mp4">
         <source src="assets/digit-evolution-1-4-9.mp4" type="video/mp4">
       </video>
-      <h2>Why "convolutional"?</h2>
-      <p>
-        It's the name for networks that use these scanning detectors.
-        The same detector slides across the whole picture, so a stroke counts wherever you draw it.
-        That's the same idea that lets a phone find a face anywhere in a photo.
-      </p>
-      <h2>Try this</h2>
-      <ul>
-        <li>Click any square or patch to see it larger.</li>
-        <li>Draw a 4 slowly and watch the answer change as you add strokes.</li>
-        <li>Draw a letter or a cat. The network only knows digits, so it will still confidently name one,
-          which shows that it doesn't "understand" anything, it only matches patterns.</li>
-      </ul>
+      <p>These scanning filters give a <em>convolutional neural network</em>, or CNN, its name. Each filter is reused across the picture, so the network can look for the same pattern in different places.</p>
+      <h2>Who taught it what a 4 looks like?</h2>
+      <p>Instead of programming rules for every possible handwriting style, we train a network using examples.</p>
+      <p>This one was trained on tens of thousands of handwritten digits, each labelled with the correct answer. During training, its predictions were compared with those labels. The strengths of its connections, called <em>weights</em>, were adjusted to reduce prediction errors.</p>
+      <p>This is <strong>supervised learning: learning from examples with answers attached.</strong></p>
+      <p>The model achieves about 99% accuracy on the MNIST test set. Your drawings may be different from those examples, so its accuracy here can vary.</p>
+      <p>Training happened before this page loaded. Drawing changes its prediction; it does not teach the network anything new.</p>
+      <h2>Can it be confident and wrong?</h2>
+      <p>Draw a letter, a face or a cat.</p>
+      <p>The network still has only ten answers available: 0–9. It has no "not a digit" option, so it may strongly favour a digit even when your drawing is something else.</p>
+      <p>The percentages show how strongly it favours each available answer. They do not guarantee that the answer is right.</p>
+      <h2>Next: can a network learn to act?</h2>
+      <p>In the <a href="https://github.com/ehasin/Self-Driving-Car-NN-in-action">self-driving car demo</a>, you train a small network to drive, three ways. With flashcards, you label road situations with the right move: supervised learning, as here. As a copycat, it learns by watching you drive. By trial and error, nobody gives it any answer: it tries moves and learns from points and penalties.</p>
+      <p>Here, the feedback is "this drawing is a 4." There, it can also be "that move caused a collision."</p>
       <h2>Want more?</h2>
       <ul>
         <li><a href="https://www.3blue1brown.com/lessons/neural-networks">But what is a neural network?</a> by 3Blue1Brown:
@@ -185,10 +170,9 @@
   </main>
   <footer>
     <div class="wrap">
-      <span>Built by <strong>Evgeni&nbsp;Hasin</strong></span>
+      <span>Built by <a href="https://www.linkedin.com/in/evgenihasin/"><strong>Evgeni&nbsp;Hasin</strong></a></span>
       <ul>
         <li><a href="https://github.com/ehasin/Visual-Digit-Recognition-CNN-in-action">Source on GitHub</a></li>
-        <li><a href="https://www.linkedin.com/in/evgenihasin/">LinkedIn</a></li>
       </ul>
     </div>
   </footer>
