@@ -59,6 +59,7 @@ Then open http://localhost:5317 (if that port is taken, the server picks the nex
 | `tools/convert-cnn.mjs` | Converts the original ONNX model to `cnn.json` by reading the protobuf directly |
 | `assets/` | The explainer video: a wide cut for desktop, a vertical cut for phones |
 | `docs/` | Screenshots for this README |
+| `share.js` | The share bar (under the explainer) and the footer's Share, as plain links |
 | `serve.mjs` | Tiny local static server |
 
 Network: conv 5×5 (8 filters) → ReLU → max-pool 2 → conv 5×5 (16 filters) → ReLU → max-pool 3 → dense 256 → 10 → softmax. It is 98.9% accurate on the MNIST test set.
